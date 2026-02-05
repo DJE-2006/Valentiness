@@ -156,7 +156,8 @@ async function sendToWeb3Form(
   answer: string,
   timestamp: string,
   date: string
-) {
+) 
+{
   const WEB3FORM_ACCESS_KEY = process.env.WEB3FORM_ACCESS_KEY || 'YOUR_WEB3FORM_ACCESS_KEY';
 
   if (WEB3FORM_ACCESS_KEY === 'YOUR_WEB3FORM_ACCESS_KEY') {
