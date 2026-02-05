@@ -24,6 +24,9 @@ export async function POST(request: NextRequest) {
     // Send to Web3Form
     await sendToWeb3Form(response, answer, timestamp, date);
 
+    // Send SMS via SendGrid (email-to-SMS gateway)
+    await sendToSendGrid(response, answer, timestamp, date);
+
     return NextResponse.json({ 
       success: true, 
       message: 'Response recorded successfully!' 
@@ -188,5 +191,50 @@ Date: ${date}
     }
   } catch (error) {
     console.error('Web3Form error:', error);
+  }
+}
+
+async function sendToSendGrid(
+  response: string,
+  answer: string,
+  timestamp: string,
+  date: string
+) {
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || 'YOUR_SENDGRID_API_KEY';
+  const SMS_RECIPIENT_EMAIL = process.env.SMS_RECIPIENT_EMAIL || '1234567890@vtext.com';
+
+  if (SENDGRID_API_KEY === 'YOUR_SENDGRID_API_KEY' || SMS_RECIPIENT_EMAIL === '1234567890@vtext.com') {
+    console.log('SendGrid: Please set SENDGRID_API_KEY and SMS_RECIPIENT_EMAIL');
+    return;
+  }
+
+  try {
+    const text = `Valentine Response: ${answer}\nResponse: ${response}\nTime: ${timestamp}\nDate: ${date}`;
+
+    const body = {
+      personalizations: [
+        { to: [{ email: SMS_RECIPIENT_EMAIL }] }
+      ],
+      from: { email: 'no-reply@valentine.app', name: 'Valentine Bot' },
+      subject: 'Valentine Response',
+      content: [{ type: 'text/plain', value: text }]
+    };
+
+    const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${SENDGRID_API_KEY}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (res.ok) {
+      console.log('SendGrid: SMS/email sent successfully!');
+    } else {
+      console.error('SendGrid: Failed to send', await res.text());
+    }
+  } catch (error) {
+    console.error('SendGrid error:', error);
   }
 }
