@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +18,9 @@ export async function POST(request: NextRequest) {
 
     // Send to Google Forms
     await sendToGoogleForms(response, answer, timestamp, date);
+
+    // Send to Telegram (optional)
+    await sendToTelegram(response, answer, timestamp, date);
 
     return NextResponse.json({ 
       success: true, 
@@ -44,7 +48,6 @@ async function sendToFormspree(
     console.log('Formspree: Please set up your endpoint first!');
     return;
   }
-
   try {
     const formData = new URLSearchParams();
     formData.append('response', response);
@@ -52,18 +55,16 @@ async function sendToFormspree(
     formData.append('timestamp', timestamp);
     formData.append('date', date);
 
-    const res = await fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
+    const res = await axios.post(FORMSPREE_ENDPOINT, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData.toString()
     });
 
-    if (res.ok) {
+    if (res.status >= 200 && res.status < 300) {
       console.log('Formspree: Response sent successfully!');
     } else {
-      console.error('Formspree: Failed to send response');
+      console.error('Formspree: Failed to send response', res.status);
     }
   } catch (error) {
     console.error('Formspree error:', error);
@@ -97,17 +98,47 @@ async function sendToGoogleForms(
 
     const googleFormUrl = `https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`;
 
-    await fetch(googleFormUrl, {
-      method: 'POST',
+    const res = await axios.post(googleFormUrl, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData.toString(),
-      mode: 'no-cors'
     });
 
-    console.log('Google Forms: Response sent successfully!');
+    if (res.status >= 200 && res.status < 300) {
+      console.log('Google Forms: Response sent successfully!');
+    } else {
+      console.error('Google Forms: Failed to send response', res.status);
+    }
   } catch (error) {
     console.error('Google Forms error:', error);
+  }
+}
+
+async function sendToTelegram(
+  response: string,
+  answer: string,
+  timestamp: string,
+  date: string
+) {
+  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
+  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || 'YOUR_CHAT_ID';
+
+  if (TELEGRAM_BOT_TOKEN === 'YOUR_TELEGRAM_BOT_TOKEN' || TELEGRAM_CHAT_ID === 'YOUR_CHAT_ID') {
+    console.log('Telegram: Please set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID');
+    return;
+  }
+
+  try {
+    const text = `Valentine Response: ${answer}\nResponse: ${response}\nTime: ${timestamp}\nDate: ${date}`;
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const res = await axios.post(url, { chat_id: TELEGRAM_CHAT_ID, text });
+
+    if (res.status >= 200 && res.status < 300) {
+      console.log('Telegram: Message sent successfully!');
+    } else {
+      console.error('Telegram: Failed to send message', res.status, res.data);
+    }
+  } catch (error) {
+    console.error('Telegram error:', error);
   }
 }
