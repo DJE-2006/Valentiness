@@ -55,6 +55,23 @@ export default function ValentinePage() {
     }, 200);
   };
 
+  const captureResponse = async (response: 'yes' | 'no') => {
+    try {
+      await fetch('/api/submit-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          response,
+          answer: response === 'yes' ? 'She said YES! 💖' : 'She said No 💔',
+          timestamp: new Date().toISOString(),
+          date: new Date().toLocaleDateString()
+        })
+      });
+    } catch (error) {
+      console.error('Failed to capture response:', error);
+    }
+  };
+
 
 
   const handleYesClick = () => {
@@ -70,6 +87,7 @@ export default function ValentinePage() {
     setRoses(positions);
 
     celebrateWithFireworks();
+    captureResponse('yes');
 
     // Change background
     document.body.style.background = 'linear-gradient(135deg, #FFE4E9 0%, #FFB6C1 50%, #FF69B4 100%)';
@@ -77,6 +95,7 @@ export default function ValentinePage() {
 
   const handleNoClick = () => {
     document.body.style.filter = 'grayscale(30%)';
+    captureResponse('no');
   };
 
   return (
