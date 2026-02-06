@@ -5,6 +5,7 @@ import './styles.css';
 
 export default function ValentinePage() {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showRejection, setShowRejection] = useState(false);
   const [roses, setRoses] = useState<Array<{ x: number; y: number; delay: number }>>([]);
   const [hearts, setHearts] = useState<any[]>([]);
   const [petals, setPetals] = useState<any[]>([]);
@@ -115,7 +116,8 @@ export default function ValentinePage() {
   };
 
   const handleNoClick = () => {
-    document.body.style.filter = 'grayscale(30%)';
+    setShowRejection(true);
+    document.body.style.background = 'linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 50%, #0d0d0d 100%)';
     captureResponse('no');
   };
 
@@ -180,7 +182,7 @@ export default function ValentinePage() {
 
       {/* Main Container */}
       <div className="container">
-        {!showSuccess ? (
+        {!showSuccess && !showRejection ? (
           <div className="content-box">
             <h1>💕 Happy Valentine&apos;s Day 💕</h1>
             <p className="message">
@@ -199,7 +201,7 @@ export default function ValentinePage() {
               </button>
             </div>
           </div>
-        ) : (
+        ) : showSuccess ? (
           <div className="content-box success-state show">
             <div className="success-emoji">🎉💖🌹</div>
             <h1>You Just Made My Day! 💕</h1>
@@ -208,6 +210,16 @@ export default function ValentinePage() {
               I promise to make it a memorable and wonderful experience!
             </p>
             <p className="question">Looking forward to our date! ❤️✨</p>
+          </div>
+        ) : (
+          <div className="content-box rejection-state show">
+            <div className="rejection-emoji">😢💔🥀</div>
+            <h1>Oh... My Heart Is Broken 💔</h1>
+            <p className="message">
+              I understand... Maybe it wasn&apos;t meant to be. Even though today isn&apos;t the answer I hoped for,
+              I&apos;ll always cherish the moments with you. Thank you for being honest.
+            </p>
+            <p className="question">Wishing you all the happiness in the world 😔</p>
           </div>
         )}
       </div>

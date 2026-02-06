@@ -448,6 +448,48 @@ h1 {
   color: #333;
 }
 
+/* Rejection State */
+.rejection-state {
+  display: none;
+  background: rgba(50, 50, 50, 0.9) !important;
+  border: 2px solid #8B0000 !important;
+  color: #ddd;
+}
+
+.rejection-state.show {
+  display: block;
+  animation: slideIn 1s ease-out;
+}
+
+.rejection-state h1 {
+  color: #8B0000 !important;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.rejection-state .message {
+  color: #bbb !important;
+}
+
+.rejection-state .question {
+  color: #A9A9A9 !important;
+}
+
+.rejection-emoji {
+  font-size: 5rem;
+  animation: sadBounce 2s ease infinite;
+}
+
+@keyframes sadBounce {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
 /* Phone Notification */
 .phone-notification {
   position: fixed;
